@@ -20,6 +20,7 @@ Route::get('/', function(){
 
 //user routes
 Route::get('/user/dashboard', [UserController::class, 'index'])->middleware('auth')->name('user.dashboard');
+Route::post('/user/storeTicket', [UserController::class, 'storeTicket'])->middleware('auth')->name('user.storeTicket');
 
 //admin routes
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->middleware('isAdmin')->name('admin.dashboard');

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord de gestion des tickets</title>
+    <style>
+        /* Reset et styles de base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #bebebe 0%, #9c8980 100%);
+            min-height: 100vh;
+        }
+        /* Conteneur */
+        .container {
+            width: 100%;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        /* En-tête */
+        .header {
+            background: linear-gradient(135deg, #e58546, #651c1c);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        /* Contenu principal */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+        /* Statistiques du tableau de bord */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #cc531b;
+            margin-bottom: 10px;
+        }
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        /* Section des tickets ouverts */
+        .open-tickets {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title::before {
+            content: '🎫';
+            font-size: 1.2rem;
+        }
+        .open-tickets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .ticket-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            border-left: 4px solid #10b981;
+        }
+        .ticket-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .ticket-id {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        .ticket-description {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .ticket-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: #dcfce7;
+            color: #166534;
+        }
+        /* Section du tableau */
+        .table-section {
+            padding: 20px;
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .add-ticket-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .add-ticket-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        /* Styles du tableau */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        th {
+            background: #f8fafc;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #4b5563;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status.open {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status.closed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .status.in-progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+        .edit-btn {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+        /* Styles de la fenêtre modale */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #fb6b45, #edae3a);
+            color: white;
+            padding: 25px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+        .close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d67a2f;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-input-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 2px dashed #d1d5db;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        .file-input-display:hover {
+            border-color: #e98b32;
+            background: #f8fafc;
+        }
+        .submit-btn {
+            background: linear-gradient(135deg, #fb6b45, #edae3a);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        }
+        /* Bouton d'action flottant */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+        }
+        /* Conception réactive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .open-tickets-grid {
+                grid-template-columns: 1fr;
+            }
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            .fab {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Conteneur principal -->
+    <div class="container">
+        <!-- En-tête -->
+        <div class="header">
+            <h1>Gestion des Tickets</h1>
+            <p>Optimisez votre flux de travail de support</p>
+        </div>
+        
+        <!-- Contenu principal -->
+        <div class="main-content">
+            <!-- Statistiques du tableau de bord -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalTickets">6</div>
+                    <div class="stat-label">Total des Tickets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="openTickets">3</div>
+                    <div class="stat-label">Tickets Ouverts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="closedTickets">3</div>
+                    <div class="stat-label">Tickets Fermés</div>
+                </div>
+            </div>
+            
+            <!-- Section des tickets ouverts -->
+            <div class="open-tickets">
+                <h2 class="section-title">Tickets Ouverts</h2>
+                <div class="open-tickets-grid" id="openTicketsGrid">
+                    <!-- Les tickets ouverts seront remplis par JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Tableau de tous les tickets -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h2 class="section-title">Tous les Tickets</h2>
+                    <button class="add-ticket-btn" onclick="openModal()">
+                        <span>➕</span> Ajouter un ticket
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table id="ticketsTable">
+                        <thead>
+                            <tr>
+                                <th>ID du Ticket</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Date de soumission</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ticketsTableBody">
+                            <!-- Les lignes du tableau seront remplies par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bouton d'action flottant -->
+    <button class="fab" onclick="openModal()" title="Ajouter un nouveau ticket">
+        ➕
+    </button>
+    
+    <!-- Fenêtre modale pour ajouter un nouveau ticket -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ajouter un nouveau ticket</h2>
+                <button class="close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="ticketForm">
+                    <div class="form-group">
+                        <label for="ticketDescription">Description</label>
+                        <textarea id="ticketDescription" name="description" placeholder="Décrivez votre problème en détail..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="ticketImage">Joindre une image (facultatif)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="ticketImage" name="image" accept="image/*" class="file-input">
+                            <div class="file-input-display">
+                                <span>📎</span>
+                                <span id="fileLabel">Cliquez pour sélectionner une image</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn">Soumettre le ticket</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Données fictives de tickets
+        let tickets = [
+            {
+                id: 'TK001',
+                description: 'Mon écran est cassé',
+                status: 'open',
+                submittedOn: '2024-03-15',
+                category: 'Matériel'
+            },
+            {
+                id: 'TK002',
+                description: "Microsoft Excel est bloqué",
+                status: 'in-progress',
+                submittedOn: '2024-03-14',
+                category: 'Logiciel'
+            },
+            {
+                id: 'TK003',
+                description: "Ma webcam ne fonctionne pas",
+                status: 'open',
+                submittedOn: '2024-03-13',
+                category: 'Matériel'
+            },
+            {
+                id: 'TK004',
+                description: "Veuillez ajouter un utilisateur à BuddyBot",
+                status: 'closed',
+                submittedOn: '2024-03-12',
+                category: 'Logiciel'
+            },
+            {
+                id: 'TK005',
+                description: "Mon réseau est coupé",
+                status: 'open',
+                submittedOn: '2024-03-11',
+                category: 'Réseau'
+            },
+            {
+                id: 'TK006',
+                description: "Impossible de connecter l'ordinateur à l'imprimante",
+                status: 'closed',
+                submittedOn: '2024-03-10',
+                category: 'Matériel'
+            }
+        ];
+
+        // Fonction pour afficher le tableau des tickets
+        function renderTicketsTable() {
+            const tbody = document.getElementById('ticketsTableBody');
+            tbody.innerHTML = '';
+            tickets.forEach(ticket => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${ticket.id}</td>
+                    <td>${ticket.description}</td>
+                    <td><span class="status ${ticket.status}">${ticket.status.replace('-', ' ')}</span></td>
+                    <td>${formatDate(ticket.submittedOn)}</td>
+                    <td class="actions">
+                        <button class="action-btn edit-btn" onclick="editTicket('${ticket.id}')">Modifier</button>
+                        <button class="action-btn delete-btn" onclick="deleteTicket('${ticket.id}')">Supprimer</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Fonction pour afficher les cartes des tickets ouverts
+        function renderOpenTickets() {
+            const container = document.getElementById('openTicketsGrid');
+            container.innerHTML = '';
+            const openTickets = tickets.filter(ticket => ticket.status === 'open');
+            openTickets.forEach(ticket => {
+                const card = document.createElement('div');
+                card.className = 'ticket-card';
+                card.innerHTML = `
+                    <div class="ticket-id">${ticket.id}</div>
+                    <div class="ticket-description">${ticket.description}</div>
+                    <div class="ticket-meta">
+                        <span>${formatDate(ticket.submittedOn)}</span>
+                        <span class="status-badge">${ticket.status}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Fonction pour mettre à jour les statistiques
+        function updateStats() {
+            const total = tickets.length;
+            const open = tickets.filter(t => t.status === 'open').length;
+            const closed = tickets.filter(t => t.status === 'closed').length;
+            document.getElementById('totalTickets').textContent = total;
+            document.getElementById('openTickets').textContent = open;
+            document.getElementById('closedTickets').textContent = closed;
+        }
+
+        // Fonction pour formater la date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Fonctions de la fenêtre modale
+        function openModal() {
+            document.getElementById('ticketModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('ticketModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('ticketForm').reset();
+            document.getElementById('fileLabel').textContent = 'Cliquez pour sélectionner une image';
+        }
+
+        // Soumission du formulaire
+        document.getElementById('ticketForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const description = document.getElementById('ticketDescription').value;
+            const imageFile = document.getElementById('ticketImage').files[0];
+            
+            // Générer un nouvel ID de ticket
+            const newId = 'TK' + String(tickets.length + 1).padStart(3, '0');
+            
+            // Créer un nouveau ticket
+            const newTicket = {
+                id: newId,
+                description: description,
+                status: 'open',
+                submittedOn: new Date().toISOString().split('T')[0],
+                category: 'Général'
+            };
+            
+            // Ajouter au tableau des tickets
+            tickets.push(newTicket);
+            
+            // Rafraîchir tous les composants
+            renderTicketsTable();
+            renderOpenTickets();
+            updateStats();
+            
+            // Fermer la fenêtre modale
+            closeModal();
+            
+            // Afficher un message de succès
+            alert("Ticket soumis avec succès !");
+        });
+
+        // Gestion de la sélection de fichier
+        document.getElementById('ticketImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const label = document.getElementById('fileLabel');
+            if (file) {
+                label.textContent = file.name;
+            } else {
+                label.textContent = 'Cliquez pour sélectionner une image';
+            }
+        });
+
+        // Fonctions d'actions
+        function editTicket(ticketId) {
+            const ticket = tickets.find(t => t.id === ticketId);
+            if (ticket) {
+                const newDescription = prompt('Modifier la description :', ticket.description);
+                if (newDescription && newDescription !== ticket.description) {
+                    ticket.description = newDescription;
+                    renderTicketsTable();
+                    renderOpenTickets();
+                }
+            }
+        }
+
+        function deleteTicket(ticketId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce ticket ?')) {
+                tickets = tickets.filter(t => t.id !== ticketId);
+                renderTicketsTable();
+                renderOpenTickets();
+                updateStats();
+            }
+        }
+
+        // Fermer la fenêtre modale en cliquant à l'extérieur
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('ticketModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Fermer la fenêtre modale avec la touche Échap
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Initialiser le tableau de bord
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTicketsTable();
+            renderOpenTickets();
+            updateStats();
+        });
+    </script>
+</body>
+</html>

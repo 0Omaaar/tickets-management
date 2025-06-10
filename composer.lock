@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "88970a0117c062eed55fa8728fc43833",
+    "content-hash": "2a28d318ade992149869ab1c033bd3b3",
     "packages": [
         {
             "name": "brick/math",
@@ -5778,6 +5778,51 @@
                 "source": "https://github.com/webmozarts/assert/tree/1.11.0"
             },
             "time": "2022-06-03T18:03:27+00:00"
+        },
+        {
+            "name": "ylamalem/laravel-simple-auth",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/yasser-lamalem/laravel-simple-auth.git",
+                "reference": "e453f979b8024c9fc6f0106965004e208349e1b7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/yasser-lamalem/laravel-simple-auth/zipball/e453f979b8024c9fc6f0106965004e208349e1b7",
+                "reference": "e453f979b8024c9fc6f0106965004e208349e1b7",
+                "shasum": ""
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Ylamalem\\LaravelSimpleAuth\\YAuthServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ylamalem\\LaravelSimpleAuth\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lamalem Yasser",
+                    "email": "lamalem@uit.ac.ma"
+                }
+            ],
+            "description": "This package for creating simple auth",
+            "support": {
+                "issues": "https://github.com/yasser-lamalem/laravel-simple-auth/issues",
+                "source": "https://github.com/yasser-lamalem/laravel-simple-auth/tree/main"
+            },
+            "time": "2023-03-12T20:05:25+00:00"
         }
     ],
     "packages-dev": [
@@ -8081,7 +8126,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "ylamalem/laravel-simple-auth": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

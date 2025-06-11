@@ -37,6 +37,7 @@
                         <a class="nav-link" href="#"
                             style="color: rgba(255,255,255,0.8); font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s ease;">Statistiques</a>
                     </li>
+                    @yield('admin.nav')
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">

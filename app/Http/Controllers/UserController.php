@@ -51,6 +51,7 @@ class UserController extends Controller
             $projects = Project::all();
             $modules = Module::all();
         }catch(\Exception $e){
+            flash()->error('Erreur lors de la récupération des tickets');
             return redirect()->back()->with('error', 'Erreur lors de la récupération des tickets');
         }
         return view('user.index', compact('totalTickets', 'totalOpenTickets', 'totalClosedTickets', 'lastTickets', 'allTickets', 'projects', 'modules'));
@@ -78,9 +79,11 @@ class UserController extends Controller
                 $ticket->save();
             }
 
-            return redirect()->back()->with('success', 'Ticket créé avec succès');
+            flash()->success('Ticket créé avec succès');
+            return redirect()->back();
         }catch(\Exception $e){
-            return redirect()->back()->with('error', 'Erreur lors de la création du ticket');
+            flash()->error('Erreur lors de la création du ticket');
+            return redirect()->back();
         }
     }
 
@@ -88,9 +91,11 @@ class UserController extends Controller
         try{
             $ticket = Ticket::find($id);
             $ticket->delete();
-            return redirect()->back()->with('success', 'Ticket supprimé avec succès');
+            flash()->success('Ticket supprimé avec succès');
+            return redirect()->back();
         }catch(\Exception $e){
-            return redirect()->back()->with('error', 'Erreur lors de la suppression du ticket');
+            flash()->error('Erreur lors de la suppression du ticket');
+            return redirect()->back();
         }
     }
 
@@ -128,9 +133,11 @@ class UserController extends Controller
                 $ticket->image = $imageName;
                 $ticket->save();
             }
-            return redirect()->back()->with('success', 'Ticket mis à jour avec succès');
+            flash()->success('Ticket mis à jour avec succès');
+            return redirect()->back();
         }catch(\Exception $e){
-            return redirect()->back()->with('error', 'Erreur lors de la mise à jour du ticket');
+            flash()->error('Erreur lors de la mise à jour du ticket');
+            return redirect()->back();
         }
     }
 }

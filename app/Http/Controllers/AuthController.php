@@ -27,8 +27,10 @@ class AuthController extends Controller
         if (auth()->attempt($credentials)) {
             switch(auth()->user()->type){
                 case 'admin':
+                    flash()->success('Bienvenue sur le tableau de bord administrateur');
                     return redirect()->route('admin.dashboard');
                 default:
+                    flash()->success('Bienvenue sur le tableau de bord utilisateur');
                     return redirect()->route('user.dashboard');
             }
         }
@@ -55,6 +57,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->get('password'))
         ]);
 
+        flash()->success('Compte créé avec succès');
         return redirect()->intended('/');
     }
 
@@ -63,6 +66,7 @@ class AuthController extends Controller
         Session::flush();
         Auth::logout();
 
+        flash()->success('Déconnexion réussie');
         return Redirect('login');
     }
 }

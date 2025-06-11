@@ -21,6 +21,9 @@ Route::get('/', function(){
 //user routes
 Route::get('/user/dashboard', [UserController::class, 'index'])->middleware('auth')->name('user.dashboard');
 Route::post('/user/storeTicket', [UserController::class, 'storeTicket'])->middleware('auth')->name('user.storeTicket');
+Route::get('/user/deleteTicket/{id}', [UserController::class, 'deleteTicket'])->middleware('auth')->name('user.deleteTicket');
+Route::get('/user/getTicket/{id}', [UserController::class, 'getTicket'])->middleware('auth')->name('user.getTicket');
+Route::put('/user/updateTicket/{id}', [UserController::class, 'updateTicket'])->middleware('auth')->name('user.updateTicket');
 
 //admin routes
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->middleware('isAdmin')->name('admin.dashboard');

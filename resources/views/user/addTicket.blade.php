@@ -5,7 +5,7 @@
             <button class="close" onclick="closeModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <form id="ticketForm" method="POST" action="{{ route('user.storeTicket') }}">
+            <form id="ticketForm" method="POST" action="{{ route('user.storeTicket') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     <!-- Première colonne -->
@@ -17,11 +17,11 @@
                         </div>
 
                         <div class="form-group mb-3">
-                            <label for="ticketProject">Projet</label>
-                            <select id="ticketProject" name="project_id" required class="form-control">
-                                <option value="">Sélectionnez un projet</option>
-                                @foreach ($projects as $project)
-                                    <option value="{{ $project->id }}">{{ $project->name }}</option>
+                            <label for="ticketModule">Module</label>
+                            <select id="ticketModule" name="module_id" required class="form-control">
+                                <option value="">Sélectionnez un module</option>
+                                @foreach ($modules as $module)
+                                    <option value="{{ $module->id }}">{{ $module->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -41,12 +41,14 @@
 
                     <!-- Deuxième colonne -->
                     <div class="col-md-6">
+
+
                         <div class="form-group mb-3">
-                            <label for="ticketModule">Module</label>
-                            <select id="ticketModule" name="module_id" required class="form-control">
-                                <option value="">Sélectionnez un module</option>
-                                @foreach ($modules as $module)
-                                    <option value="{{ $module->id }}">{{ $module->name }}</option>
+                            <label for="ticketProject">Projet</label>
+                            <select id="ticketProject" name="project_id" required class="form-control">
+                                <option value="">Sélectionnez un projet</option>
+                                @foreach ($projects as $project)
+                                    <option value="{{ $project->id }}">{{ $project->name }}</option>
                                 @endforeach
                             </select>
                         </div>

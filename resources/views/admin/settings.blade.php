@@ -143,6 +143,76 @@
                 </div>
             </div>
         </div>
+
+        <!-- Tableau de tous les utilisateurs -->
+        <div class="table-section" style="margin-top: 40px;">
+            <div class="table-header">
+                <div class="header-left">
+                    <h2 class="section-title">Tous les Utilisateurs</h2>
+                    <div class="search-container">
+                        <form method="GET" action="{{ route('admin.settings') }}">
+                            <input type="text" id="UserSearch" class="search-input"
+                                placeholder="Rechercher un utilisateur..." name="user_search"
+                                value="{{ request('user_search') ?? '' }}">
+                            <button type="submit"><i class="fas fa-search search-icon"></i></button>
+                        </form>
+                        <div class="search-note">
+                            <i class="fas fa-info-circle"></i>
+                            Recherche par nom, email ou type.
+                        </div>
+                    </div>
+                </div>
+                <button class="add-ticket-btn" onclick="openUserModal()">
+                    <span>➕</span> Ajouter un utilisateur
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">N Utilisateur</th>
+                            <th style="text-align: center;">Nom</th>
+                            <th style="text-align: center;">Email</th>
+                            <th style="text-align: center;">Nombre de tickets</th>
+                            <th style="text-align: center;">Type</th>
+                            <th style="text-align: center;">Date de création</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        @forelse ($users as $user)
+                            <tr>
+                                <td align="center">{{ $loop->index + 1 }}</td>
+                                <td align="center">{{ $user->name }}</td>
+                                <td align="center">{{ $user->email }}</td>
+                                <td align="center"><span class="status ouvert">{{ $user->tickets->count() }}</span></td>
+                                <td align="center"><span class="status fermé">{{ $user->type }}</span></td>
+                                <td align="center">{{ $user->created_at->format('d/m/Y') }}</td>
+                                <td align="center" class="actions">
+                                    <button class="action-btn edit-btn"
+                                        onclick="openEditUserModal('{{ $user->id }}')">Modifier</button>
+                                    <button class="action-btn delete-btn"
+                                        onclick="deleteUser('{{ $user->id }}')">Supprimer</button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4" style="color: #6b7280; font-size: 1.1rem;">
+                                    <i class="fas fa-users mb-2" style="font-size: 2rem; color: #9ca3af;"></i>
+                                    <p>Aucun utilisateur trouvé</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                <div class="pagination-container"
+                    style="margin-top: 20px; display: flex; justify-content: center; align-items: center;">
+                    <div class="pagination-wrapper" style="background: white; padding: 10px 20px; border-radius: 8px;">
+                        {{ $users->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Fenêtre modale pour ajouter un nouveau projet -->
@@ -156,6 +226,12 @@
 
     <!-- Fenêtre modale pour modifier un module -->
     @include('admin.editModule')
+
+    <!-- Fenêtre modale pour ajouter un nouvel utilisateur -->
+    @include('admin.addUser')
+
+    <!-- Fenêtre modale pour modifier un utilisateur -->
+    @include('admin.editUser')
 @endsection
 
 <script>
@@ -253,6 +329,55 @@
     function deleteModule(moduleId) {
         if (confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
             window.location.href = `/admin/deleteModule/${moduleId}`;
+        }
+    }
+
+    // User functions
+    function openUserModal() {
+        document.getElementById('addUserModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeUserModal() {
+        document.getElementById('addUserModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.getElementById('userForm').reset();
+    }
+
+    function openEditUserModal(userId) {
+        document.getElementById('updateModalUser').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+
+        fetch(`/admin/getUser/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const user = data.user;
+                    document.getElementById('editUserId').value = user.id;
+                    document.getElementById('editUserName').value = user.name;
+                    document.getElementById('editUserEmail').value = user.email;
+                    document.getElementById('editUserType').value = user.type;
+                    document.getElementById('editUserForm').action = `/admin/updateUser/${user.id}`;
+                } else {
+                    alert('Erreur lors de la récupération de l\'utilisateur');
+                    closeUpdateUserModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la récupération de l\'utilisateur');
+                closeUpdateUserModal();
+            });
+    }
+
+    function closeUpdateUserModal() {
+        document.getElementById('updateModalUser').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function deleteUser(userId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+            window.location.href = `/admin/deleteUser/${userId}`;
         }
     }
 

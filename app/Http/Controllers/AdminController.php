@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\Module;
 use App\Models\Ticket;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -41,7 +43,7 @@ class AdminController extends Controller
 
             $tickets = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->all());
 
- 
+
             $totalTickets = Ticket::count();
             $openTickets = Ticket::where('status', 'ouvert')->count();
             $closedTickets = Ticket::where('status', 'fermé')->count();
@@ -60,6 +62,7 @@ class AdminController extends Controller
     public function settings(Request $request){
         $projects = [];
         $modules = [];
+        $users = [];
         try{
             if($request->has('project_search')){
                 $projects = Project::where('name', 'like', '%' . $request->project_search . '%')
@@ -83,12 +86,23 @@ class AdminController extends Controller
             }else{
                 $modules = Module::paginate(5);
             }
+
+            if($request->has('user_search')){
+                $users = User::where('name', 'like', '%' . $request->user_search . '%')
+                ->orWhere('email', 'like', '%' . $request->user_search . '%')
+                ->orWhere('type', 'like', '%' . $request->user_search . '%')
+                ->orderBy('created_at', 'desc')
+                ->paginate(5)
+                ->appends(['user_search' => $request->user_search]);
+            }else{
+                $users = User::paginate(5);
+            }
         }catch(\Exception $e){
             flash()->error('Erreur lors de la récupération des données');
             return redirect()->back();
         }
 
-        return view('admin.settings', compact('projects', 'modules'));
+        return view('admin.settings', compact('projects', 'modules', 'users'));
     }
 
     public function storeProject(Request $request){
@@ -206,6 +220,65 @@ class AdminController extends Controller
         }catch(\Exception $e){
             flash()->error('Erreur lors de la mise à jour du ticket');
             return response()->json(['success' => false, 'message' => 'Erreur lors de la mise à jour du ticket']);
+        }
+    }
+
+    // User methods
+    public function storeUser(Request $request){
+        try{
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->password);
+            $user->type = $request->type;
+            $user->save();
+
+            flash()->success('Utilisateur enregistré avec succès');
+            return redirect()->back();
+        }catch(\Exception $e){
+            flash()->error('Erreur lors de l\'enregistrement de l\'utilisateur');
+            return redirect()->back();
+        }
+    }
+
+    public function deleteUser($id){
+        try{
+            $user = User::find($id);
+            if($user->id === auth()->id()) {
+                flash()->error('Vous ne pouvez pas supprimer votre propre compte');
+                return redirect()->back();
+            }
+            $user->delete();
+            flash()->success('Utilisateur supprimé avec succès');
+            return redirect()->back();
+        }catch(\Exception $e){
+            flash()->error('Erreur lors de la suppression de l\'utilisateur');
+            return redirect()->back();
+        }
+    }
+
+    public function getUser($id){
+        try{
+            $user = User::find($id);
+            return response()->json(['success' => true, 'user' => $user]);
+        }catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => 'Erreur lors de la récupération de l\'utilisateur']);
+        }
+    }
+
+    public function updateUser(Request $request, $id){
+        try{
+            $user = User::find($id);
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->type = $request->type;
+            $user->save();
+
+            flash()->success('Utilisateur mis à jour avec succès');
+            return redirect()->back();
+        }catch(\Exception $e){
+            flash()->error('Erreur lors de la mise à jour de l\'utilisateur');
+            return redirect()->back();
         }
     }
 }

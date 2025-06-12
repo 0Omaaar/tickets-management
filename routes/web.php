@@ -39,4 +39,11 @@ Route::get('/admin/settings', [AdminController::class, 'settings'])->middleware(
     Route::get('/admin/deleteModule/{id}', [AdminController::class, 'deleteModule'])->middleware('isAdmin')->name('admin.deleteModule');
     Route::get('/admin/getModule/{id}', [AdminController::class, 'getModule'])->middleware('isAdmin')->name('admin.getModule');
     Route::put('/admin/updateModule/{id}', [AdminController::class, 'updateModule'])->middleware('isAdmin')->name('admin.updateModule');
+
+    //admin user routes
+    Route::post('/admin/storeUser', [AdminController::class, 'storeUser'])->middleware('isAdmin')->name('admin.storeUser');
+    Route::get('/admin/deleteUser/{id}', [AdminController::class, 'deleteUser'])->middleware('isAdmin')->name('admin.deleteUser');
+    Route::get('/admin/getUser/{id}', [AdminController::class, 'getUser'])->middleware('isAdmin')->name('admin.getUser');
+    Route::put('/admin/updateUser/{id}', [AdminController::class, 'updateUser'])->middleware('isAdmin')->name('admin.updateUser');
+
 Route::get('/admin/updateTicketStatus/{id}/{status}', [AdminController::class, 'updateTicketStatus'])->middleware('isAdmin')->name('admin.updateTicketStatus');

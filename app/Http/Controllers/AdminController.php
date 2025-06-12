@@ -5,11 +5,56 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\Module;
+use App\Models\Ticket;
 
 class AdminController extends Controller
 {
     public function index(Request $request){
-        return view('admin.index');
+        $tickets = [];
+        $totalTickets = 0;
+        $openTickets = 0;
+        $closedTickets = 0;
+        $projects = [];
+        $modules = [];
+        $lastTickets = [];
+        try{
+
+            // get last 3 tickets submitted
+            $lastTickets = Ticket::orderBy('created_at', 'desc')->take(3)->get();
+
+
+            $query = Ticket::query();
+
+            if ($request->has('search_status') && $request->search_status != '') {
+                $query->where('status', $request->search_status);
+            }
+
+            if ($request->has('ticket_search') && $request->ticket_search != '') {
+                $query->where(function ($q) use ($request) {
+                    $q->where('title', 'like', "%{$request->ticket_search}%")
+                      ->orWhere('description', 'like', "%{$request->ticket_search}%")
+                      ->orWhere('status', 'like', "%{$request->ticket_search}%")
+                      ->orWhere('priority', 'like', "%{$request->ticket_search}%")
+                      ->orWhere('type', 'like', "%{$request->ticket_search}%");
+                });
+            }
+
+            $tickets = $query->orderBy('created_at', 'desc')->paginate(10)->appends($request->all());
+
+ 
+            $totalTickets = Ticket::count();
+            $openTickets = Ticket::where('status', 'ouvert')->count();
+            $closedTickets = Ticket::where('status', 'fermé')->count();
+
+            $projects = Project::all();
+            $modules = Module::all();
+        }catch(\Exception $e){
+            dd($e->getMessage());
+            flash()->error('Erreur lors de la récupération des tickets');
+            return redirect()->back();
+        }
+
+        return view('admin.index', compact('tickets', 'totalTickets', 'openTickets', 'closedTickets', 'projects', 'modules', 'lastTickets'));
     }
 
     public function settings(Request $request){
@@ -148,6 +193,19 @@ class AdminController extends Controller
         }catch(\Exception $e){
             flash()->error('Erreur lors de la mise à jour du module');
             return redirect()->back();
+        }
+    }
+
+    public function updateTicketStatus($id, $status){
+        try{
+            $ticket = Ticket::find($id);
+            $ticket->status = $status;
+            $ticket->save();
+            flash()->success('Ticket mis à jour avec succès');
+            return response()->json(['success' => true, 'message' => 'Ticket mis à jour avec succès']);
+        }catch(\Exception $e){
+            flash()->error('Erreur lors de la mise à jour du ticket');
+            return response()->json(['success' => false, 'message' => 'Erreur lors de la mise à jour du ticket']);
         }
     }
 }

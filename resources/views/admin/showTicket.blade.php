@@ -1,7 +1,7 @@
 <div id="showTicketModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>Modifier le Ticket</h2>
+            <h2>Détails du ticket de <span id="ticketUser" class="text-muted"></span></h2>
             <button class="close" onclick="closeShowTicketModal()">&times;</button>
         </div>
         <div class="modal-body">

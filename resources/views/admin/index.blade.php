@@ -114,21 +114,21 @@
                         </thead>
                         <tbody id="ticketsTableBody">
                             @forelse ($tickets as $ticket)
-                                <tr onclick="openShowTicketModal('{{ $ticket->id }}')" style="cursor: pointer;">
-                                    <td align="center">{{ $loop->index + 1 }}</td>
-                                    <td align="center">{{ $ticket->project->name }}</td>
-                                    <td align="center">{{ $ticket->module->name }}</td>
-                                    <td align="center">{{ $ticket->title }}</td>
-                                    <td align="center">{{ Str::limit($ticket->description, 50) }}</td>
-                                    <td align="center"><span
+                                <tr style="cursor: pointer;">
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')" >{{ $loop->index + 1 }}</td>
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')">{{ $ticket->project->name }}</td>
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')">{{ $ticket->module->name }}</td>
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')">{{ $ticket->title }}</td>
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')">{{ Str::limit($ticket->description, 50) }}</td>
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')"><span
                                             class="status {{ strtolower($ticket->status) }}">{{ $ticket->status }}</span>
                                     </td>
-                                    <td align="center"><span
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')"><span
                                             class="type {{ strtolower($ticket->type) }}">{{ $ticket->type }}</span></td>
-                                    <td align="center"><span
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')"><span
                                             class="priority {{ strtolower($ticket->priority) }}">{{ $ticket->priority }}</span>
                                     </td>
-                                    <td align="center"><span
+                                    <td align="center" onclick="openShowTicketModal('{{ $ticket->id }}')"><span
                                             class="date">{{ $ticket->created_at->format('d/m/Y') }}</span></td>
                                     <td align="center" class="actions">
                                         <select class="action-btn edit-btn status-select"
@@ -205,11 +205,11 @@
                 })
                 .catch(error => {
                     console.error('Erreur:', error);
-                    flash('Erreur lors de la mise à jour du ticket', 'error');
+                    // flash('Erreur lors de la mise à jour du ticket', 'error');
                 });
         } catch (error) {
             console.error('Erreur:', error);
-            flash('Erreur lors de la mise à jour du ticket', 'error');
+            // flash('Erreur lors de la mise à jour du ticket', 'error');
         }
     }
 
@@ -236,7 +236,7 @@
             .then(data => {
                 if (data.success) {
                     const ticket = data.ticket;
-
+                    const user = data.user[0];
                     document.getElementById('editTicketId').value = ticket.id;
                     document.getElementById('editTitle').value = ticket.title;
                     document.getElementById('editDescription').value = ticket.description;
@@ -245,6 +245,7 @@
                     document.getElementById('editStatus').value = ticket.status;
                     document.getElementById('editType').value = ticket.type;
                     document.getElementById('editPriority').value = ticket.priority;
+                    document.getElementById('ticketUser').textContent = user.name;
 
                     // Show current image if exists
                     if (ticket.image) {

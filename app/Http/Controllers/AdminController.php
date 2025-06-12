@@ -8,6 +8,8 @@ use App\Models\Module;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\TicketNotification;
 
 class AdminController extends Controller
 {
@@ -215,6 +217,13 @@ class AdminController extends Controller
             $ticket = Ticket::find($id);
             $ticket->status = $status;
             $ticket->save();
+
+            // notify ticket owner
+            $ticketOwner = User::find($ticket->user);
+            if($ticketOwner){
+                Notification::send($ticketOwner, new TicketNotification($ticket, 'status_updated'));
+            }
+
             flash()->success('Ticket mis à jour avec succès');
             return response()->json(['success' => true, 'message' => 'Ticket mis à jour avec succès']);
         }catch(\Exception $e){
@@ -226,7 +235,8 @@ class AdminController extends Controller
     public function getTicket($id){
         try{
             $ticket = Ticket::find($id);
-            return response()->json(['success' => true, 'ticket' => $ticket]);
+            $user = User::find($ticket->user);
+            return response()->json(['success' => true, 'ticket' => $ticket, 'user' => $user]);
         }catch(\Exception $e){
             return response()->json(['success' => false, 'message' => 'Erreur lors de la récupération du ticket']);
         }

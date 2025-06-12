@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\Project;
 use App\Models\Module;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\TicketNotification;
 
 class UserController extends Controller
 {
@@ -79,6 +82,12 @@ class UserController extends Controller
                 $ticket->save();
             }
 
+            // Notify project admin
+            $projectAdmin = User::where('type', 'admin')->first();
+            if ($projectAdmin) {
+                Notification::send($projectAdmin, new TicketNotification($ticket, 'created'));
+            }
+
             flash()->success('Ticket créé avec succès');
             return redirect()->back();
         }catch(\Exception $e){
@@ -118,6 +127,14 @@ class UserController extends Controller
     public function updateTicket(Request $request, $id){
         try{
             $ticket = Ticket::find($id);
+
+            if($ticket->status != $request->status){
+                // Notify project admin
+                $projectAdmin = User::where('type', 'admin')->first();
+                if ($projectAdmin) {
+                    Notification::send($projectAdmin, new TicketNotification($ticket, 'status_updated'));
+                }
+            }
             $ticket->update([
                 'title' => $request->title,
                 'description' => $request->description,
@@ -133,6 +150,7 @@ class UserController extends Controller
                 $ticket->image = $imageName;
                 $ticket->save();
             }
+
             flash()->success('Ticket mis à jour avec succès');
             return redirect()->back();
         }catch(\Exception $e){

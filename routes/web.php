@@ -46,4 +46,7 @@ Route::get('/admin/settings', [AdminController::class, 'settings'])->middleware(
     Route::get('/admin/getUser/{id}', [AdminController::class, 'getUser'])->middleware('isAdmin')->name('admin.getUser');
     Route::put('/admin/updateUser/{id}', [AdminController::class, 'updateUser'])->middleware('isAdmin')->name('admin.updateUser');
 
-Route::get('/admin/updateTicketStatus/{id}/{status}', [AdminController::class, 'updateTicketStatus'])->middleware('isAdmin')->name('admin.updateTicketStatus');
+    //admin ticket routes
+    Route::get('/admin/updateTicketStatus/{id}/{status}', [AdminController::class, 'updateTicketStatus'])->middleware('isAdmin')->name('admin.updateTicketStatus');
+    Route::get('/admin/deleteTicket/{id}', [AdminController::class, 'deleteTicket'])->middleware('isAdmin')->name('admin.deleteTicket');
+    Route::get('/admin/getTicket/{id}', [AdminController::class, 'getTicket'])->middleware('isAdmin')->name('admin.getTicket');

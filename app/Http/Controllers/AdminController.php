@@ -223,6 +223,28 @@ class AdminController extends Controller
         }
     }
 
+    public function getTicket($id){
+        try{
+            $ticket = Ticket::find($id);
+            return response()->json(['success' => true, 'ticket' => $ticket]);
+        }catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => 'Erreur lors de la récupération du ticket']);
+        }
+    }
+
+    public function deleteTicket($id){
+        try{
+            $ticket = Ticket::find($id);
+            $ticket->delete();
+
+            flash()->success('Ticket supprimé avec succès');
+            return redirect()->back();
+        }catch(\Exception $e){
+            flash()->error('Erreur lors de la suppression du ticket');
+            return redirect()->back();
+        }
+    }
+
     // User methods
     public function storeUser(Request $request){
         try{

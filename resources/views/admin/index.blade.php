@@ -58,7 +58,8 @@
                                 <input type="text" id="ticketSearch" class="search-input"
                                     placeholder="Rechercher un ticket..." name="ticket_search"
                                     value="{{ request('ticket_search') ?? '' }}">
-                                <input type="hidden" name="search_status" id="searchStatus" value="{{ request('search_status') ?? '' }}">
+                                <input type="hidden" name="search_status" id="searchStatus"
+                                    value="{{ request('search_status') ?? '' }}">
                                 <button type="submit"><i class="fas fa-search search-icon"></i></button>
                             </form>
                             <div class="search-note">
@@ -68,7 +69,8 @@
                         </div>
                     </div>
                     <div class="status-filter">
-                        <button class="filter-btn {{ request('search_status') == '' || !request('search_status') ? 'active' : '' }}"
+                        <button
+                            class="filter-btn {{ request('search_status') == '' || !request('search_status') ? 'active' : '' }}"
                             data-status="" onclick="updateStatusFilter('')">
                             <i class="fas fa-filter"></i> Tous
                         </button>
@@ -112,7 +114,7 @@
                         </thead>
                         <tbody id="ticketsTableBody">
                             @forelse ($tickets as $ticket)
-                                <tr>
+                                <tr onclick="openShowTicketModal('{{ $ticket->id }}')" style="cursor: pointer;">
                                     <td align="center">{{ $loop->index + 1 }}</td>
                                     <td align="center">{{ $ticket->project->name }}</td>
                                     <td align="center">{{ $ticket->module->name }}</td>
@@ -129,7 +131,9 @@
                                     <td align="center"><span
                                             class="date">{{ $ticket->created_at->format('d/m/Y') }}</span></td>
                                     <td align="center" class="actions">
-                                        <select class="action-btn edit-btn status-select" onchange="updateTicketStatus('{{ $ticket->id }}', this.value)" style="
+                                        <select class="action-btn edit-btn status-select"
+                                            onchange="updateTicketStatus('{{ $ticket->id }}', this.value)"
+                                            style="
                                             padding: 6px 12px;
                                             border-radius: 4px;
                                             border: 1px solid #e2e8f0;
@@ -138,18 +142,24 @@
                                             transition: all 0.2s ease;
                                             min-width: 120px;
                                         ">
-                                            <option value="ouvert" style="color: #059669;" {{ $ticket->status == 'ouvert' ? 'selected' : '' }}>Ouvert</option>
-                                            <option value="fermé" style="color: #dc2626;" {{ $ticket->status == 'fermé' ? 'selected' : '' }}>Fermé</option>
-                                            <option value="en_cours" style="color: #2563eb;" {{ $ticket->status == 'en_cours' ? 'selected' : '' }}>En cours</option>
-                                            <option value="en_attente" style="color: #d97706;" {{ $ticket->status == 'en_attente' ? 'selected' : '' }}>En attente</option>
-                                            <option value="annulé" style="color: #6b7280;" {{ $ticket->status == 'annulé' ? 'selected' : '' }}>Annulé</option>
+                                            <option value="ouvert" style="color: #059669;"
+                                                {{ $ticket->status == 'ouvert' ? 'selected' : '' }}>Ouvert</option>
+                                            <option value="fermé" style="color: #dc2626;"
+                                                {{ $ticket->status == 'fermé' ? 'selected' : '' }}>Fermé</option>
+                                            <option value="en_cours" style="color: #2563eb;"
+                                                {{ $ticket->status == 'en_cours' ? 'selected' : '' }}>En cours</option>
+                                            <option value="en_attente" style="color: #d97706;"
+                                                {{ $ticket->status == 'en_attente' ? 'selected' : '' }}>En attente</option>
+                                            <option value="annulé" style="color: #6b7280;"
+                                                {{ $ticket->status == 'annulé' ? 'selected' : '' }}>Annulé</option>
                                         </select>
                                         <button class="action-btn delete-btn"
                                             onclick="deleteTicket('{{ $ticket->id }}')">Supprimer</button>
                                     </td>
                                 @empty
                                 <tr>
-                                    <td colspan="10" class="text-center py-4" style="color: #6b7280; font-size: 1.1rem;">
+                                    <td colspan="10" class="text-center py-4"
+                                        style="color: #6b7280; font-size: 1.1rem;">
                                         <i class="fas fa-ticket-alt mb-2" style="font-size: 2rem; color: #9ca3af;"></i>
                                         <p>Aucun ticket trouvé</p>
                                     </td>
@@ -159,7 +169,8 @@
                     </table>
                     <div class="pagination-container"
                         style="margin-top: 20px; display: flex; justify-content: center; align-items: center;">
-                        <div class="pagination-wrapper" style="background: white; padding: 10px 20px; border-radius: 8px;">
+                        <div class="pagination-wrapper"
+                            style="background: white; padding: 10px 20px; border-radius: 8px;">
                             {{ $tickets->links() }}
                         </div>
                     </div>
@@ -167,33 +178,36 @@
             </div>
         </div>
     </div>
+
+    <!-- Fenêtre modale pour afficher un ticket -->
+    @include('admin.showTicket')
 @endsection
 
 <script>
     function updateTicketStatus(ticketId, status) {
         try {
             fetch(`/admin/updateTicketStatus/${ticketId}/${status}`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                flash('Erreur lors de la mise à jour du ticket', 'error');
-            });
-        } catch(error) {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    flash('Erreur lors de la mise à jour du ticket', 'error');
+                });
+        } catch (error) {
             console.error('Erreur:', error);
             flash('Erreur lors de la mise à jour du ticket', 'error');
         }
@@ -202,5 +216,58 @@
     function updateStatusFilter(status) {
         document.getElementById('searchStatus').value = status;
         document.getElementById('searchForm').submit();
+    }
+
+    function deleteTicket(ticketId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce ticket ?')) {
+            window.location.href = `/admin/deleteTicket/${ticketId}`;
+        }
+    }
+
+    function openShowTicketModal(ticketId) {
+        document.getElementById('showTicketModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+
+        // Reset image previews
+        document.getElementById('currentImagePreview').style.display = 'none';
+
+        fetch(`/admin/getTicket/${ticketId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const ticket = data.ticket;
+
+                    document.getElementById('editTicketId').value = ticket.id;
+                    document.getElementById('editTitle').value = ticket.title;
+                    document.getElementById('editDescription').value = ticket.description;
+                    document.getElementById('editProject').value = ticket.project_id;
+                    document.getElementById('editModule').value = ticket.module_id;
+                    document.getElementById('editStatus').value = ticket.status;
+                    document.getElementById('editType').value = ticket.type;
+                    document.getElementById('editPriority').value = ticket.priority;
+
+                    // Show current image if exists
+                    if (ticket.image) {
+                        const currentImagePreview = document.getElementById('currentImagePreview');
+                        const currentImage = document.getElementById('currentImage');
+                        currentImage.src = `/images/tickets/${ticket.image}`;
+                        currentImagePreview.style.display = 'block';
+                    }
+
+                } else {
+                    alert('Erreur lors de la récupération du ticket');
+                    closeShowTicketModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la récupération du ticket');
+                closeShowTicketModal();
+            });
+    }
+
+    function closeShowTicketModal() {
+        document.getElementById('showTicketModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
 </script>

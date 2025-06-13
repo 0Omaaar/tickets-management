@@ -322,7 +322,7 @@ class AdminController extends Controller
         $totalTickets = Ticket::count();
         
         // Ticket status counts - adjust these status values to match your database
-        $ticketsEnCours = Ticket::where('status', 'en cours')->count();
+        $ticketsEnCours = Ticket::where('status', 'en_cours')->count();
         $ticketsOuverts = Ticket::where('status', 'ouvert')->count(); 
         $ticketsFermes = Ticket::where('status', 'fermé')->count();
         $ticketsAnnules = Ticket::where('status', 'annulé')->count();

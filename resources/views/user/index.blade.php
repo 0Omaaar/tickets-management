@@ -148,9 +148,9 @@
         document.body.style.overflow = 'hidden';
 
         // Reset image previews
-        document.getElementById('currentImagePreview').style.display = 'none';
-        document.getElementById('newImagePreview').style.display = 'none';
-        document.getElementById('fileLabel').textContent = 'Cliquez pour sélectionner une image';
+        // document.getElementById('currentImagePreview').style.display = 'none';
+        // document.getElementById('newImagePreview').style.display = 'none';
+        // document.getElementById('fileLabel').textContent = 'Cliquez pour sélectionner une image';
 
         fetch(`/user/getTicket/${ticketId}`)
             .then(response => response.json())
@@ -168,12 +168,12 @@
                     document.getElementById('editPriority').value = ticket.priority;
 
                     // Show current image if exists
-                    if (ticket.image) {
-                        const currentImagePreview = document.getElementById('currentImagePreview');
-                        const currentImage = document.getElementById('currentImage');
-                        currentImage.src = `/images/tickets/${ticket.image}`;
-                        currentImagePreview.style.display = 'block';
-                    }
+                    // if (ticket.image) {
+                    //     const currentImagePreview = document.getElementById('currentImagePreview');
+                    //     const currentImage = document.getElementById('currentImage');
+                    //     currentImage.src = `/images/tickets/${ticket.image}`;
+                    //     currentImagePreview.style.display = 'block';
+                    // }
 
                     document.getElementById('editTicketForm').action = `/user/updateTicket/${ticket.id}`;
                 } else {
@@ -188,26 +188,26 @@
             });
     }
 
-    function previewNewImage(input) {
-        const fileLabel = document.getElementById('fileLabel');
-        const newImagePreview = document.getElementById('newImagePreview');
-        const previewImage = document.getElementById('previewImage');
+    // function previewNewImage(input) {
+    //     const fileLabel = document.getElementById('fileLabel');
+    //     const newImagePreview = document.getElementById('newImagePreview');
+    //     const previewImage = document.getElementById('previewImage');
 
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
+    //     if (input.files && input.files[0]) {
+    //         const reader = new FileReader();
 
-            reader.onload = function(e) {
-                previewImage.src = e.target.result;
-                newImagePreview.style.display = 'block';
-                fileLabel.textContent = input.files[0].name;
-            }
+    //         reader.onload = function(e) {
+    //             previewImage.src = e.target.result;
+    //             newImagePreview.style.display = 'block';
+    //             fileLabel.textContent = input.files[0].name;
+    //         }
 
-            reader.readAsDataURL(input.files[0]);
-        } else {
-            newImagePreview.style.display = 'none';
-            fileLabel.textContent = 'Cliquez pour sélectionner une image';
-        }
-    }
+    //         reader.readAsDataURL(input.files[0]);
+    //     } else {
+    //         newImagePreview.style.display = 'none';
+    //         fileLabel.textContent = 'Cliquez pour sélectionner une image';
+    //     }
+    // }
 
     function closeEditModal() {
         document.getElementById('ticketModalUpdate').style.display = 'none';

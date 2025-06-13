@@ -84,7 +84,7 @@
                  </div>
 
                  {{-- image --}}
-                 <div class="form-group">
+                 {{-- <div class="form-group">
                      <label for="ticketImage">Joindre une image (facultatif)</label>
                      <div class="file-input-wrapper">
                          <input type="file" id="ticketImage" name="image" accept="image/*" class="file-input" onchange="previewNewImage(this)">
@@ -101,7 +101,7 @@
                          <p class="mb-2">Nouvelle image:</p>
                          <img id="previewImage" src="" alt="Aperçu" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
                      </div>
-                 </div>
+                 </div> --}}
 
                  <!-- Description sur toute la largeur -->
                  <div class="row mt-3">

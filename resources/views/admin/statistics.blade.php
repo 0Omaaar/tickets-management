@@ -1,5 +1,18 @@
 @extends('base')
 
+@section('admin.nav')
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.statistics') }}"
+        style="color: rgba(255,255,255,0.8); font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s ease;">Statistiques</a>
+</li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('admin.settings') }}"
+            style="color: rgba(255,255,255,0.8); font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s ease;">Paramètres</a>
+    </li>
+
+
+    
+@endsection
 @section('title', 'Statistiques')
 
 @section('content')
@@ -12,9 +25,9 @@
 
     body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #f8f9fc;
         min-height: 100vh;
-        color: #333;
+        color: #5a5c69;
     }
 
     .dashboard-container {
@@ -24,37 +37,34 @@
     }
 
     .header {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 2rem;
+        background: #C88562;
+        border-radius: 15px;
+        padding: 1.5rem;
         margin-bottom: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgb(255, 255, 255);
+        box-shadow: 0 4px 20px rgba(78, 115, 223, 0.3);
     }
 
     .header h1 {
         color: white;
-        font-size: 2.5rem;
-        font-weight: 700;
+        font-size: 2rem;
+        font-weight: 600;
         margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, #fff, #e0e7ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
     }
 
     .breadcrumb {
         color: rgba(255, 255, 255, 0.8);
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     .breadcrumb a {
-        color: rgba(255, 255, 255, 0.9);
+        color: white;
         text-decoration: none;
         transition: color 0.3s ease;
     }
 
     .breadcrumb a:hover {
-        color: white;
+        text-decoration: underline;
     }
 
     .section {
@@ -62,64 +72,51 @@
     }
 
     .section-title {
-        color: white;
-        font-size: 1.5rem;
+        color: #4e73df;
+        font-size: 1.3rem;
         font-weight: 600;
         margin-bottom: 1.5rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        border-bottom: 2px solid #4e73df;
+        padding-bottom: 0.5rem;
     }
 
     .section-title i {
-        background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #4e73df;
     }
 
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
 
     .stat-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--gradient);
-        border-radius: 20px 20px 0 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid var(--border-color);
     }
 
     .stat-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .stat-card.primary { --gradient: linear-gradient(135deg, #667eea, #764ba2); }
-    .stat-card.success { --gradient: linear-gradient(135deg, #56cc9d, #6c5ce7); }
-    .stat-card.info { --gradient: linear-gradient(135deg, #74b9ff, #0984e3); }
-    .stat-card.warning { --gradient: linear-gradient(135deg, #fdcb6e, #e17055); }
-    .stat-card.purple { --gradient: linear-gradient(135deg, #a29bfe, #6c5ce7); }
-    .stat-card.cyan { --gradient: linear-gradient(135deg, #81ecec, #00b894); }
-    .stat-card.orange { --gradient: linear-gradient(135deg, #fd79a8, #fdcb6e); }
-    .stat-card.pink { --gradient: linear-gradient(135deg, #fd79a8, #e84393); }
+    .stat-card.primary { --border-color: #4e73df; }
+    .stat-card.success { --border-color: #1cc88a; }
+    .stat-card.info { --border-color: #36b9cc; }
+    .stat-card.warning { --border-color: #6A211F; }
+    .stat-card.danger { --border-color: #e74a3b; }
+    .stat-card.secondary { --border-color: #858796; }
+    .stat-card.purple { --border-color: #6f42c1; }
 
     .stat-content {
         display: flex;
@@ -128,44 +125,96 @@
     }
 
     .stat-number {
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 700;
-        color: white;
+        color: #5a5c69;
         line-height: 1;
     }
 
     .stat-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
+        color: #858796;
+        font-size: 0.9rem;
         font-weight: 500;
         margin-top: 0.5rem;
     }
 
     .stat-icon {
-        font-size: 3rem;
+        font-size: 2.5rem;
         opacity: 0.3;
-        color: white;
+        color: var(--border-color);
     }
 
     .chart-container {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
         margin-bottom: 2rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid #4e73df;
     }
 
     .chart-title {
-        color: white;
-        font-size: 1.3rem;
+        color: #4e73df;
+        font-size: 1.1rem;
         font-weight: 600;
         margin-bottom: 1.5rem;
     }
 
-    .priority-high { color: #ef4444; }
-    .priority-medium { color: #f59e0b; }
-    .priority-low { color: #22c55e; }
+    .priority-high { color: #e74a3b; }
+    .priority-medium { color: #f6c23e; }
+    .priority-low { color: #1cc88a; }
+
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #5a5c69;
+        border-collapse: collapse;
+    }
+
+    .table th {
+        background-color: #4e73df;
+        color: white;
+        padding: 1rem;
+        text-align: left;
+    }
+
+    .table td {
+        padding: 1rem;
+        background-color: white;
+        border-bottom: 1px solid #f8f9fc;
+    }
+
+    .table tr:hover td {
+        background-color: #f8f9fc;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.35rem;
+    }
+
+    .badge-primary {
+        color: white;
+        background-color: #4e73df;
+    }
+
+    .badge-success {
+        color: white;
+        background-color: #1cc88a;
+    }
 
     @media (max-width: 768px) {
         .dashboard-container {
@@ -176,33 +225,13 @@
             grid-template-columns: 1fr;
         }
     }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .animate-in {
-        animation: fadeInUp 0.6s ease-out forwards;
-    }
 </style>
 
 <div class="dashboard-container">
-    <div class="header animate-in">
-        <h4>Statistiques</h4>
-        <div class="breadcrumb">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a> / Statistiques
-        </div>
-    </div>
+    
 
     <!-- Users Statistics -->
-    <div class="section animate-in" style="animation-delay: 0.1s">
+    <div class="section">
         <h5 class="section-title">
             <i class="fas fa-users"></i>Statistiques des Utilisateurs
         </h5>
@@ -247,12 +276,12 @@
     </div>
 
     <!-- Projects Statistics -->
-    <div class="section animate-in" style="animation-delay: 0.2s">
+    <div class="section">
         <h5 class="section-title">
             <i class="fas fa-project-diagram"></i>Statistiques des Projets
         </h5>
         <div class="stats-grid">
-            <div class="stat-card purple">
+            <div class="stat-card primary">
                 <div class="stat-content">
                     <div>
                         <div class="stat-number">{{ $totalProjects }}</div>
@@ -261,7 +290,7 @@
                     <i class="fas fa-project-diagram stat-icon"></i>
                 </div>
             </div>
-            <div class="stat-card cyan">
+            <div class="stat-card info">
                 <div class="stat-content">
                     <div>
                         <div class="stat-number">{{ $projectsWithModules }}</div>
@@ -270,7 +299,7 @@
                     <i class="fas fa-puzzle-piece stat-icon"></i>
                 </div>
             </div>
-            <div class="stat-card orange">
+            <div class="stat-card warning">
                 <div class="stat-content">
                     <div>
                         <div class="stat-number">{{ $projectsWithTickets }}</div>
@@ -279,7 +308,7 @@
                     <i class="fas fa-ticket-alt stat-icon"></i>
                 </div>
             </div>
-            <div class="stat-card pink">
+            <div class="stat-card purple">
                 <div class="stat-content">
                     <div>
                         <div class="stat-number">{{ $recentProjects }}</div>
@@ -292,7 +321,7 @@
     </div>
 
     <!-- Modules Statistics -->
-    <div class="section animate-in" style="animation-delay: 0.3s">
+    <div class="section">
         <h5 class="section-title">
             <i class="fas fa-cubes"></i>Statistiques des Modules
         </h5>
@@ -328,7 +357,7 @@
     </div>
 
     <!-- Tickets Statistics -->
-    <div class="section animate-in" style="animation-delay: 0.4s">
+    <div class="section">
         <h5 class="section-title">
             <i class="fas fa-tags"></i>Statistiques des Tickets
         </h5>
@@ -372,7 +401,7 @@
                         <i class="fas fa-check-circle stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #ef4444, #dc2626)">
+                <div class="stat-card danger">
                     <div class="stat-content">
                         <div>
                             <div class="stat-number">{{ $ticketsAnnules }}</div>
@@ -381,7 +410,7 @@
                         <i class="fas fa-times-circle stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #64748b, #475569)">
+                <div class="stat-card secondary">
                     <div class="stat-content">
                         <div>
                             <div class="stat-number">{{ $recentTickets }}</div>
@@ -396,7 +425,7 @@
         <div class="chart-container">
             <h6 class="chart-title">Par Priorité</h6>
             <div class="stats-grid">
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #ef4444, #dc2626)">
+                <div class="stat-card danger">
                     <div class="stat-content">
                         <div>
                             <div class="stat-number priority-high">{{ $highPriorityTickets }}</div>
@@ -405,7 +434,7 @@
                         <i class="fas fa-exclamation-triangle stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #f59e0b, #d97706)">
+                <div class="stat-card warning">
                     <div class="stat-content">
                         <div>
                             <div class="stat-number priority-medium">{{ $mediumPriorityTickets }}</div>
@@ -414,7 +443,7 @@
                         <i class="fas fa-exclamation stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #22c55e, #16a34a)">
+                <div class="stat-card success">
                     <div class="stat-content">
                         <div>
                             <div class="stat-number priority-low">{{ $lowPriorityTickets }}</div>
@@ -429,7 +458,7 @@
         <div class="chart-container">
             <h6 class="chart-title">Par Type</h6>
             <div class="stats-grid">
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #ef4444, #dc2626)">
+                <div class="stat-card danger">
                     <div class="stat-content">
                         <div>
                             <div class="stat-number">{{ $bugTickets }}</div>
@@ -438,7 +467,7 @@
                         <i class="fas fa-bug stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #3b82f6, #2563eb)">
+                <div class="stat-card primary">
                     <div class="stat-content">
                         <div>
                             <div class="stat-number">{{ $featureTickets }}</div>
@@ -447,7 +476,7 @@
                         <i class="fas fa-lightbulb stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #8b5cf6, #7c3aed)">
+                <div class="stat-card purple">
                     <div class="stat-content">
                         <div>
                             <div class="stat-number">{{ $supportTickets }}</div>
@@ -461,7 +490,7 @@
     </div>
 
     <!-- Charts and Additional Stats -->
-    <div class="section animate-in" style="animation-delay: 0.5s">
+    <div class="section">
         <div class="row">
             <!-- Monthly Trends -->
             <div class="col-md-8">
@@ -489,7 +518,7 @@
     </div>
 
     <!-- Top Projects and Users -->
-    <div class="section animate-in" style="animation-delay: 0.6s">
+    <div class="section">
         <div class="row">
             <div class="col-md-6">
                 <div class="chart-container">
@@ -499,22 +528,22 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th style="color: rgba(255, 255, 255, 0.9)">Projet</th>
-                                        <th style="color: rgba(255, 255, 255, 0.9)">Nombre de Tickets</th>
+                                        <th>Projet</th>
+                                        <th>Nombre de Tickets</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($topProjects as $project)
-                                    <tr style="color: white; border-bottom: 1px solid rgba(255, 255, 255, 0.1)">
+                                    <tr>
                                         <td>{{ $project->name }}</td>
-                                        <td><span style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{{ $project->tickets_count }}</span></td>
+                                        <td><span class="badge badge-primary">{{ $project->tickets_count }}</span></td>
                                     </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
                     @else
-                        <p style="color: rgba(255, 255, 255, 0.7)">Aucun projet avec des tickets.</p>
+                        <p style="color: #858796;">Aucun projet avec des tickets.</p>
                     @endif
                 </div>
             </div>
@@ -527,22 +556,22 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th style="color: rgba(255, 255, 255, 0.9)">Utilisateur</th>
-                                        <th style="color: rgba(255, 255, 255, 0.9)">Nombre de Tickets</th>
+                                        <th>Utilisateur</th>
+                                        <th>Nombre de Tickets</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($topUsers as $user)
-                                    <tr style="color: white; border-bottom: 1px solid rgba(255, 255, 255, 0.1)">
+                                    <tr>
                                         <td>{{ $user->name }}</td>
-                                        <td><span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{{ $user->tickets_count }}</span></td>
+                                        <td><span class="badge badge-success">{{ $user->tickets_count }}</span></td>
                                     </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
                     @else
-                        <p style="color: rgba(255, 255, 255, 0.7)">Aucun utilisateur avec des tickets.</p>
+                        <p style="color: #858796;">Aucun utilisateur avec des tickets.</p>
                     @endif
                 </div>
             </div>
@@ -564,8 +593,8 @@
             datasets: [{
                 label: 'Tickets créés',
                 data: monthlyData.map(item => item.count),
-                borderColor: 'rgba(255, 255, 255, 0.8)',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
                 tension: 0.1,
                 fill: true
             }]
@@ -575,7 +604,7 @@
             plugins: {
                 legend: {
                     labels: {
-                        color: 'rgba(255, 255, 255, 0.8)'
+                        color: '#5a5c69'
                     }
                 }
             },
@@ -583,18 +612,18 @@
                 y: {
                     beginAtZero: true,
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
+                        color: 'rgba(0, 0, 0, 0.05)'
                     },
                     ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)'
+                        color: '#5a5c69'
                     }
                 },
                 x: {
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
+                        color: 'rgba(0, 0, 0, 0.05)'
                     },
                     ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)'
+                        color: '#5a5c69'
                     }
                 }
             }

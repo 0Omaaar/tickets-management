@@ -28,6 +28,7 @@ Route::put('/user/updateTicket/{id}', [UserController::class, 'updateTicket'])->
 //admin routes
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->middleware('isAdmin')->name('admin.dashboard');
 Route::get('/admin/settings', [AdminController::class, 'settings'])->middleware('isAdmin')->name('admin.settings');
+Route::get('/admin/statistics', [AdminController::class, 'statistics'])->middleware('isAdmin')->name('admin.statistics');
     //admin project routes
     Route::get('/admin/deleteProject/{id}', [AdminController::class, 'deleteProject'])->middleware('isAdmin')->name('admin.deleteProject');
     Route::post('/admin/storeProject', [AdminController::class, 'storeProject'])->middleware('isAdmin')->name('admin.storeProject');

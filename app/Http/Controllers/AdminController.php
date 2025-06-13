@@ -313,4 +313,93 @@ class AdminController extends Controller
             return redirect()->back();
         }
     }
+    public function statistics()
+{
+    try {
+        // Basic counts that should work with your existing setup
+        $totalUsers = User::count();
+        $totalProjects = Project::count(); 
+        $totalTickets = Ticket::count();
+        
+        // Ticket status counts - adjust these status values to match your database
+        $ticketsEnCours = Ticket::where('status', 'en cours')->count();
+        $ticketsOuverts = Ticket::where('status', 'ouvert')->count(); 
+        $ticketsFermes = Ticket::where('status', 'fermé')->count();
+        $ticketsAnnules = Ticket::where('status', 'annulé')->count();
+        
+        // Try to get admin count - but make it safe
+        $adminUsers = User::where('type', 'admin')->count();
+        $regularUsers = $totalUsers - $adminUsers;
+        
+        // Check if Module model exists and is working
+        try {
+            $totalModules = \App\Models\Module::count();
+        } catch (\Exception $e) {
+            $totalModules = 0; // Default if Module model doesn't exist
+        }
+        
+        // Simple recent counts (last 30 days)
+        $recentUsers = User::where('created_at', '>=', now()->subDays(30))->count();
+        $recentProjects = Project::where('created_at', '>=', now()->subDays(30))->count();
+        $recentTickets = Ticket::where('created_at', '>=', now()->subDays(7))->count();
+        
+        // Set default values for optional stats
+        $projectsWithModules = 0;
+        $projectsWithTickets = Project::has('tickets')->count();
+        $modulesWithTickets = 0;
+        $recentModules = 0;
+        
+        $highPriorityTickets = Ticket::where('priority', 'haute')->count();
+        $mediumPriorityTickets = Ticket::where('priority', 'moyenne')->count(); 
+        $lowPriorityTickets = Ticket::where('priority', 'basse')->count();
+        
+        $bugTickets = Ticket::where('type', 'bug')->count();
+        $featureTickets = Ticket::where('type', 'feature')->count();
+        $supportTickets = Ticket::where('type', 'support')->count();
+        
+        $recentlyClosedTickets = Ticket::where('status', 'fermé')
+            ->where('updated_at', '>=', now()->subDays(7))->count();
+        
+        // Simple monthly data
+        $monthlyTickets = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $monthlyTickets[] = [
+                'month' => $month->format('M Y'),
+                'count' => Ticket::whereYear('created_at', $month->year)
+                    ->whereMonth('created_at', $month->month)
+                    ->count()
+            ];
+        }
+        
+        // Top projects - simplified
+        $topProjects = Project::withCount('tickets')
+            ->orderBy('tickets_count', 'desc')
+            ->take(5)
+            ->get();
+            
+        // Top users - simplified  
+        $topUsers = User::withCount('tickets')
+            ->orderBy('tickets_count', 'desc')
+            ->take(5)
+            ->get();
+
+        return view('admin.statistics', compact(
+            'totalUsers', 'adminUsers', 'regularUsers', 'recentUsers',
+            'totalProjects', 'projectsWithModules', 'projectsWithTickets', 'recentProjects',
+            'totalModules', 'modulesWithTickets', 'recentModules',
+            'totalTickets', 'ticketsEnCours', 'ticketsOuverts', 'ticketsFermes', 'ticketsAnnules',
+            'highPriorityTickets', 'mediumPriorityTickets', 'lowPriorityTickets',
+            'bugTickets', 'featureTickets', 'supportTickets',
+            'recentTickets', 'recentlyClosedTickets',
+            'monthlyTickets', 'topProjects', 'topUsers'
+        ));
+
+    } catch (\Exception $e) {
+       
+        
+        flash()->error('Erreur lors de la récupération des statistiques: ' . $e->getMessage());
+        return redirect()->back();
+    }
+}
 }

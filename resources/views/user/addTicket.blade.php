@@ -79,7 +79,7 @@
                 </div>
 
                 {{-- image --}}
-                <div class="form-group">
+                {{-- <div class="form-group">
                     <label for="ticketImage">Joindre une image (facultatif)</label>
                     <div class="file-input-wrapper">
                         <input type="file" id="ticketImage" name="image" accept="image/*" class="file-input">
@@ -88,7 +88,7 @@
                             <span id="fileLabel">Cliquez pour sélectionner une image</span>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
                 <!-- Description sur toute la largeur -->
                 <div class="row mt-3">

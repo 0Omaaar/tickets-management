@@ -1,606 +1,398 @@
 @extends('base')
 
-@section('title', 'Statistiques')
+@section('admin.nav')
+<li class="nav-item">
+    <a class="nav-link" href="{{ route('admin.statistics') }}"
+        style="color: rgba(255,255,255,0.8); font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s ease;">Statistiques</a>
+</li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('admin.settings') }}"
+            style="color: rgba(255,255,255,0.8); font-weight: 500; padding: 0.5rem 1rem; border-radius: 8px; transition: all 0.3s ease;">Paramètres</a>
+    </li>
+
+
+    
+@endsection
 
 @section('content')
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        color: #333;
-    }
-
-    .dashboard-container {
-        padding: 2rem;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    .header {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .header h1 {
-        color: white;
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, #fff, #e0e7ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .breadcrumb {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 1rem;
-    }
-
-    .breadcrumb a {
-        color: rgba(255, 255, 255, 0.9);
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-
-    .breadcrumb a:hover {
-        color: white;
-    }
-
-    .section {
-        margin-bottom: 3rem;
-    }
-
-    .section-title {
-        color: white;
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .section-title i {
-        background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--gradient);
-        border-radius: 20px 20px 0 0;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        background: rgba(255, 255, 255, 0.15);
-    }
-
-    .stat-card.primary { --gradient: linear-gradient(135deg, #667eea, #764ba2); }
-    .stat-card.success { --gradient: linear-gradient(135deg, #56cc9d, #6c5ce7); }
-    .stat-card.info { --gradient: linear-gradient(135deg, #74b9ff, #0984e3); }
-    .stat-card.warning { --gradient: linear-gradient(135deg, #fdcb6e, #e17055); }
-    .stat-card.purple { --gradient: linear-gradient(135deg, #a29bfe, #6c5ce7); }
-    .stat-card.cyan { --gradient: linear-gradient(135deg, #81ecec, #00b894); }
-    .stat-card.orange { --gradient: linear-gradient(135deg, #fd79a8, #fdcb6e); }
-    .stat-card.pink { --gradient: linear-gradient(135deg, #fd79a8, #e84393); }
-
-    .stat-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: white;
-        line-height: 1;
-    }
-
-    .stat-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
-        font-weight: 500;
-        margin-top: 0.5rem;
-    }
-
-    .stat-icon {
-        font-size: 3rem;
-        opacity: 0.3;
-        color: white;
-    }
-
-    .chart-container {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(20px);
-        border-radius: 20px;
-        padding: 2rem;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        margin-bottom: 2rem;
-    }
-
-    .chart-title {
-        color: white;
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-    }
-
-    .priority-high { color: #ef4444; }
-    .priority-medium { color: #f59e0b; }
-    .priority-low { color: #22c55e; }
-
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-        
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .animate-in {
-        animation: fadeInUp 0.6s ease-out forwards;
-    }
-</style>
-
-<div class="dashboard-container">
-    <div class="header animate-in">
-        <h4>Statistiques</h4>
-        <div class="breadcrumb">
-            <a href="{{ route('admin.dashboard') }}">Dashboard</a> / Statistiques
-        </div>
-    </div>
-
-    <!-- Users Statistics -->
-    <div class="section animate-in" style="animation-delay: 0.1s">
-        <h5 class="section-title">
-            <i class="fas fa-users"></i>Statistiques des Utilisateurs
-        </h5>
-        <div class="stats-grid">
-            <div class="stat-card primary">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $totalUsers }}</div>
-                        <div class="stat-label">Total Utilisateurs</div>
-                    </div>
-                    <i class="fas fa-users stat-icon"></i>
-                </div>
-            </div>
-            <div class="stat-card success">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $adminUsers }}</div>
-                        <div class="stat-label">Administrateurs</div>
-                    </div>
-                    <i class="fas fa-user-shield stat-icon"></i>
-                </div>
-            </div>
-            <div class="stat-card info">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $regularUsers }}</div>
-                        <div class="stat-label">Utilisateurs Réguliers</div>
-                    </div>
-                    <i class="fas fa-user stat-icon"></i>
-                </div>
-            </div>
-            <div class="stat-card warning">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $recentUsers }}</div>
-                        <div class="stat-label">Nouveaux (30j)</div>
-                    </div>
-                    <i class="fas fa-user-plus stat-icon"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Projects Statistics -->
-    <div class="section animate-in" style="animation-delay: 0.2s">
-        <h5 class="section-title">
-            <i class="fas fa-project-diagram"></i>Statistiques des Projets
-        </h5>
-        <div class="stats-grid">
-            <div class="stat-card purple">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $totalProjects }}</div>
-                        <div class="stat-label">Total Projets</div>
-                    </div>
-                    <i class="fas fa-project-diagram stat-icon"></i>
-                </div>
-            </div>
-            <div class="stat-card cyan">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $projectsWithModules }}</div>
-                        <div class="stat-label">Avec Modules</div>
-                    </div>
-                    <i class="fas fa-puzzle-piece stat-icon"></i>
-                </div>
-            </div>
-            <div class="stat-card orange">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $projectsWithTickets }}</div>
-                        <div class="stat-label">Avec Tickets</div>
-                    </div>
-                    <i class="fas fa-ticket-alt stat-icon"></i>
-                </div>
-            </div>
-            <div class="stat-card pink">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $recentProjects }}</div>
-                        <div class="stat-label">Récents (30j)</div>
-                    </div>
-                    <i class="fas fa-calendar-plus stat-icon"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modules Statistics -->
-    <div class="section animate-in" style="animation-delay: 0.3s">
-        <h5 class="section-title">
-            <i class="fas fa-cubes"></i>Statistiques des Modules
-        </h5>
-        <div class="stats-grid">
-            <div class="stat-card primary">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $totalModules }}</div>
-                        <div class="stat-label">Total Modules</div>
-                    </div>
-                    <i class="fas fa-cubes stat-icon"></i>
-                </div>
-            </div>
-            <div class="stat-card success">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $modulesWithTickets }}</div>
-                        <div class="stat-label">Avec Tickets</div>
-                    </div>
-                    <i class="fas fa-cube stat-icon"></i>
-                </div>
-            </div>
-            <div class="stat-card info">
-                <div class="stat-content">
-                    <div>
-                        <div class="stat-number">{{ $recentModules }}</div>
-                        <div class="stat-label">Récents (30j)</div>
-                    </div>
-                    <i class="fas fa-plus-circle stat-icon"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tickets Statistics -->
-    <div class="section animate-in" style="animation-delay: 0.4s">
-        <h5 class="section-title">
-            <i class="fas fa-tags"></i>Statistiques des Tickets
-        </h5>
-        
-        <div class="chart-container">
-            <h6 class="chart-title">Par Statut</h6>
-            <div class="stats-grid">
-                <div class="stat-card primary">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $totalTickets }}</div>
-                            <div class="stat-label">Total Tickets</div>
+    <div class="main-content">
+        <!-- Tableau de tous les projets -->
+        <div class="table-section">
+            <div class="table-header">
+                <div class="header-left">
+                    <h2 class="section-title">Tous les Projets</h2>
+                    <div class="search-container">
+                        <form method="GET" action="{{ route('admin.settings') }}">
+                            <input type="text" id="ProjectSearch" class="search-input"
+                                placeholder="Rechercher un projet..." name="project_search"
+                                value="{{ request('project_search') ?? '' }}">
+                            <button type="submit"><i class="fas fa-search search-icon"></i></button>
+                        </form>
+                        <div class="search-note">
+                            <i class="fas fa-info-circle"></i>
+                            Recherche par nom ou description.
                         </div>
-                        <i class="fas fa-tags stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card warning">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $ticketsEnCours }}</div>
-                            <div class="stat-label">En Cours</div>
-                        </div>
-                        <i class="fas fa-spinner stat-icon"></i>
-                    </div>
-                </div>
-                <div class="stat-card info">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $ticketsOuverts }}</div>
-                            <div class="stat-label">Ouverts</div>
-                        </div>
-                        <i class="fas fa-door-open stat-icon"></i>
-                    </div>
-                </div>
-                <div class="stat-card success">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $ticketsFermes }}</div>
-                            <div class="stat-label">Fermés</div>
-                        </div>
-                        <i class="fas fa-check-circle stat-icon"></i>
-                    </div>
-                </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #ef4444, #dc2626)">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $ticketsAnnules }}</div>
-                            <div class="stat-label">Annulés</div>
-                        </div>
-                        <i class="fas fa-times-circle stat-icon"></i>
-                    </div>
-                </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #64748b, #475569)">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $recentTickets }}</div>
-                            <div class="stat-label">Récents (7j)</div>
-                        </div>
-                        <i class="fas fa-clock stat-icon"></i>
+                <button class="add-ticket-btn" onclick="openProjectModal()">
+                    <span>➕</span> Ajouter un projet
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="ticketsTable">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">N Projet</th>
+                            <th style="text-align: center;">Nom</th>
+                            <th style="text-align: center;">Description</th>
+                            <th style="text-align: center;">Nombre de modules</th>
+                            <th style="text-align: center;">Nombre de tickets</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody">
+                        @forelse ($projects as $project)
+                            <tr>
+                                <td align="center">{{ $loop->index + 1 }}</td>
+                                <td align="center">{{ $project->name }}</td>
+                                <td align="center">{{ Str::limit($project->description, 50) ?? '--'}}</td>
+                                <td align="center"><span class="status ouvert">{{ $project->modules->count() }}</span></td>
+                                <td align="center"><span class="status fermé">{{ $project->tickets->count() }}</span></td>
+                                <td align="center" class="actions">
+                                    <button class="action-btn edit-btn"
+                                        onclick="openEditProjectModal('{{ $project->id }}')">Modifier</button>
+                                    <button class="action-btn delete-btn"
+                                        onclick="deleteProject('{{ $project->id }}')">Supprimer</button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4" style="color: #6b7280; font-size: 1.1rem;">
+                                    <i class="fas fa-project-diagram mb-2" style="font-size: 2rem; color: #9ca3af;"></i>
+                                    <p>Aucun projet trouvé</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                <div class="pagination-container"
+                    style="margin-top: 20px; display: flex; justify-content: center; align-items: center;">
+                    <div class="pagination-wrapper" style="background: white; padding: 10px 20px; border-radius: 8px;">
+                        {{ $projects->links() }}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="chart-container">
-            <h6 class="chart-title">Par Priorité</h6>
-            <div class="stats-grid">
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #ef4444, #dc2626)">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number priority-high">{{ $highPriorityTickets }}</div>
-                            <div class="stat-label">Priorité Haute</div>
+        <!-- Tableau de tous les modules -->
+        <div class="table-section" style="margin-top: 40px;">
+            <div class="table-header">
+                <div class="header-left">
+                    <h2 class="section-title">Tous les Modules</h2>
+                    <div class="search-container">
+                        <form method="GET" action="{{ route('admin.settings') }}">
+                            <input type="text" id="ModuleSearch" class="search-input"
+                                placeholder="Rechercher un module..." name="module_search"
+                                value="{{ request('module_search') ?? '' }}">
+                            <button type="submit"><i class="fas fa-search search-icon"></i></button>
+                        </form>
+                        <div class="search-note">
+                            <i class="fas fa-info-circle"></i>
+                            Recherche par nom, description ou projet.
                         </div>
-                        <i class="fas fa-exclamation-triangle stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #f59e0b, #d97706)">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number priority-medium">{{ $mediumPriorityTickets }}</div>
-                            <div class="stat-label">Priorité Moyenne</div>
-                        </div>
-                        <i class="fas fa-exclamation stat-icon"></i>
-                    </div>
-                </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #22c55e, #16a34a)">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number priority-low">{{ $lowPriorityTickets }}</div>
-                            <div class="stat-label">Priorité Basse</div>
-                        </div>
-                        <i class="fas fa-arrow-down stat-icon"></i>
+                <button class="add-ticket-btn" onclick="openModuleModal()">
+                    <span>➕</span> Ajouter un module
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="modulesTable">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">N Module</th>
+                            <th style="text-align: center;">Nom</th>
+                            <th style="text-align: center;">Description</th>
+                            <th style="text-align: center;">Projet</th>
+                            <th style="text-align: center;">Nombre de tickets</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modulesTableBody">
+                        @forelse ($modules as $module)
+                            <tr>
+                                <td align="center">{{ $loop->index + 1 }}</td>
+                                <td align="center">{{ $module->name }}</td>
+                                <td align="center">{{ Str::limit($module->description, 50) ?? '--'}}</td>
+                                <td align="center">{{ $module->project->name }}</td>
+                                <td align="center"><span class="status ouvert">{{ $module->tickets->count() }}</span></td>
+                                <td align="center" class="actions">
+                                    <button class="action-btn edit-btn"
+                                        onclick="openEditModuleModal('{{ $module->id }}')">Modifier</button>
+                                    <button class="action-btn delete-btn"
+                                        onclick="deleteModule('{{ $module->id }}')">Supprimer</button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4" style="color: #6b7280; font-size: 1.1rem;">
+                                    <i class="fas fa-cubes mb-2" style="font-size: 2rem; color: #9ca3af;"></i>
+                                    <p>Aucun module trouvé</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                <div class="pagination-container"
+                    style="margin-top: 20px; display: flex; justify-content: center; align-items: center;">
+                    <div class="pagination-wrapper" style="background: white; padding: 10px 20px; border-radius: 8px;">
+                        {{ $modules->links() }}
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="chart-container">
-            <h6 class="chart-title">Par Type</h6>
-            <div class="stats-grid">
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #ef4444, #dc2626)">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $bugTickets }}</div>
-                            <div class="stat-label">Bugs</div>
+        <!-- Tableau de tous les utilisateurs -->
+        <div class="table-section" style="margin-top: 40px;">
+            <div class="table-header">
+                <div class="header-left">
+                    <h2 class="section-title">Tous les Utilisateurs</h2>
+                    <div class="search-container">
+                        <form method="GET" action="{{ route('admin.settings') }}">
+                            <input type="text" id="UserSearch" class="search-input"
+                                placeholder="Rechercher un utilisateur..." name="user_search"
+                                value="{{ request('user_search') ?? '' }}">
+                            <button type="submit"><i class="fas fa-search search-icon"></i></button>
+                        </form>
+                        <div class="search-note">
+                            <i class="fas fa-info-circle"></i>
+                            Recherche par nom, email ou type.
                         </div>
-                        <i class="fas fa-bug stat-icon"></i>
                     </div>
                 </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #3b82f6, #2563eb)">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $featureTickets }}</div>
-                            <div class="stat-label">Fonctionnalités</div>
-                        </div>
-                        <i class="fas fa-lightbulb stat-icon"></i>
-                    </div>
-                </div>
-                <div class="stat-card" style="--gradient: linear-gradient(135deg, #8b5cf6, #7c3aed)">
-                    <div class="stat-content">
-                        <div>
-                            <div class="stat-number">{{ $supportTickets }}</div>
-                            <div class="stat-label">Support</div>
-                        </div>
-                        <i class="fas fa-headset stat-icon"></i>
+                <button class="add-ticket-btn" onclick="openUserModal()">
+                    <span>➕</span> Ajouter un utilisateur
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">N Utilisateur</th>
+                            <th style="text-align: center;">Nom</th>
+                            <th style="text-align: center;">Email</th>
+                            <th style="text-align: center;">Nombre de tickets</th>
+                            <th style="text-align: center;">Type</th>
+                            <th style="text-align: center;">Date de création</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        @forelse ($users as $user)
+                            <tr>
+                                <td align="center">{{ $loop->index + 1 }}</td>
+                                <td align="center">{{ $user->name }}</td>
+                                <td align="center">{{ $user->email }}</td>
+                                <td align="center"><span class="status ouvert">{{ $user->tickets->count() }}</span></td>
+                                <td align="center"><span class="status fermé">{{ $user->type }}</span></td>
+                                <td align="center">{{ $user->created_at->format('d/m/Y') }}</td>
+                                <td align="center" class="actions">
+                                    <button class="action-btn edit-btn"
+                                        onclick="openEditUserModal('{{ $user->id }}')">Modifier</button>
+                                    <button class="action-btn delete-btn"
+                                        onclick="deleteUser('{{ $user->id }}')">Supprimer</button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4" style="color: #6b7280; font-size: 1.1rem;">
+                                    <i class="fas fa-users mb-2" style="font-size: 2rem; color: #9ca3af;"></i>
+                                    <p>Aucun utilisateur trouvé</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+                <div class="pagination-container"
+                    style="margin-top: 20px; display: flex; justify-content: center; align-items: center;">
+                    <div class="pagination-wrapper" style="background: white; padding: 10px 20px; border-radius: 8px;">
+                        {{ $users->links() }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Charts and Additional Stats -->
-    <div class="section animate-in" style="animation-delay: 0.5s">
-        <div class="row">
-            <!-- Monthly Trends -->
-            <div class="col-md-8">
-                <div class="chart-container">
-                    <h5 class="chart-title">Tendance Mensuelle des Tickets</h5>
-                    <canvas id="monthlyChart" height="100"></canvas>
-                </div>
-            </div>
+    <!-- Fenêtre modale pour ajouter un nouveau projet -->
+    @include('admin.addProject')
 
-            <!-- Recent Activity -->
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h5 class="chart-title">Activité Récente</h5>
-                    <div class="text-center mb-4">
-                        <h3 class="stat-number">{{ $recentTickets }}</h3>
-                        <p class="stat-label">Nouveaux tickets (7 derniers jours)</p>
-                    </div>
-                    <div class="text-center">
-                        <h3 class="stat-number">{{ $recentlyClosedTickets }}</h3>
-                        <p class="stat-label">Tickets fermés (7 derniers jours)</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Fenêtre modale pour modifier un projet -->
+    @include('admin.editProject')
 
-    <!-- Top Projects and Users -->
-    <div class="section animate-in" style="animation-delay: 0.6s">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="chart-title">Top 5 Projets (par nombre de tickets)</h5>
-                    @if($topProjects->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th style="color: rgba(255, 255, 255, 0.9)">Projet</th>
-                                        <th style="color: rgba(255, 255, 255, 0.9)">Nombre de Tickets</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($topProjects as $project)
-                                    <tr style="color: white; border-bottom: 1px solid rgba(255, 255, 255, 0.1)">
-                                        <td>{{ $project->name }}</td>
-                                        <td><span style="background: rgba(59, 130, 246, 0.2); color: #3b82f6; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{{ $project->tickets_count }}</span></td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p style="color: rgba(255, 255, 255, 0.7)">Aucun projet avec des tickets.</p>
-                    @endif
-                </div>
-            </div>
+    <!-- Fenêtre modale pour ajouter un nouveau module -->
+    @include('admin.addModule')
 
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="chart-title">Top 5 Utilisateurs (par nombre de tickets)</h5>
-                    @if($topUsers->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th style="color: rgba(255, 255, 255, 0.9)">Utilisateur</th>
-                                        <th style="color: rgba(255, 255, 255, 0.9)">Nombre de Tickets</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($topUsers as $user)
-                                    <tr style="color: white; border-bottom: 1px solid rgba(255, 255, 255, 0.1)">
-                                        <td>{{ $user->name }}</td>
-                                        <td><span style="background: rgba(16, 185, 129, 0.2); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{{ $user->tickets_count }}</span></td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p style="color: rgba(255, 255, 255, 0.7)">Aucun utilisateur avec des tickets.</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- Fenêtre modale pour modifier un module -->
+    @include('admin.editModule')
 
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    // Monthly trends chart
-    const ctx = document.getElementById('monthlyChart').getContext('2d');
-    const monthlyData = @json($monthlyTickets);
-    
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: monthlyData.map(item => item.month),
-            datasets: [{
-                label: 'Tickets créés',
-                data: monthlyData.map(item => item.count),
-                borderColor: 'rgba(255, 255, 255, 0.8)',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                tension: 0.1,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'rgba(255, 255, 255, 0.8)'
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)'
-                    }
-                },
-                x: {
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)'
-                    }
-                }
-            }
-        }
-    });
-</script>
-@endpush
+    <!-- Fenêtre modale pour ajouter un nouvel utilisateur -->
+    @include('admin.addUser')
 
+    <!-- Fenêtre modale pour modifier un utilisateur -->
+    @include('admin.editUser')
 @endsection
+
+<script>
+    // Project functions
+    function openProjectModal() {
+        document.getElementById('addProjectModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeProjectModal() {
+        document.getElementById('addProjectModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.getElementById('projectForm').reset();
+    }
+
+    function openEditProjectModal(projectId) {
+        document.getElementById('updateModalProject').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+
+        fetch(`/admin/getProject/${projectId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const project = data.project;
+                    document.getElementById('editProjectId').value = project.id;
+                    document.getElementById('editProjectName').value = project.name;
+                    document.getElementById('editProjectDescription').value = project.description;
+                    document.getElementById('editProjectForm').action = `/admin/updateProject/${project.id}`;
+                } else {
+                    alert('Erreur lors de la récupération du projet');
+                    closeUpdateProjectModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la récupération du projet');
+                closeUpdateProjectModal();
+            });
+    }
+
+    function closeUpdateProjectModal() {
+        document.getElementById('updateModalProject').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function deleteProject(projectId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+            window.location.href = `/admin/deleteProject/${projectId}`;
+        }
+    }
+
+    // Module functions
+    function openModuleModal() {
+        document.getElementById('addModuleModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModuleModal() {
+        document.getElementById('addModuleModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.getElementById('moduleForm').reset();
+    }
+
+    function openEditModuleModal(moduleId) {
+        document.getElementById('updateModalModule').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+
+        fetch(`/admin/getModule/${moduleId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const module = data.module;
+                    document.getElementById('editModuleId').value = module.id;
+                    document.getElementById('editModuleName').value = module.name;
+                    document.getElementById('editModuleDescription').value = module.description;
+                    document.getElementById('editModuleProject').value = module.project_id;
+                    document.getElementById('editModuleForm').action = `/admin/updateModule/${module.id}`;
+                } else {
+                    alert('Erreur lors de la récupération du module');
+                    closeUpdateModuleModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la récupération du module');
+                closeUpdateModuleModal();
+            });
+    }
+
+    function closeUpdateModuleModal() {
+        document.getElementById('updateModalModule').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function deleteModule(moduleId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce module ?')) {
+            window.location.href = `/admin/deleteModule/${moduleId}`;
+        }
+    }
+
+    // User functions
+    function openUserModal() {
+        document.getElementById('addUserModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeUserModal() {
+        document.getElementById('addUserModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        document.getElementById('userForm').reset();
+    }
+
+    function openEditUserModal(userId) {
+        document.getElementById('updateModalUser').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+
+        fetch(`/admin/getUser/${userId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const user = data.user;
+                    document.getElementById('editUserId').value = user.id;
+                    document.getElementById('editUserName').value = user.name;
+                    document.getElementById('editUserEmail').value = user.email;
+                    document.getElementById('editUserType').value = user.type;
+                    document.getElementById('editUserForm').action = `/admin/updateUser/${user.id}`;
+                } else {
+                    alert('Erreur lors de la récupération de l\'utilisateur');
+                    closeUpdateUserModal();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors de la récupération de l\'utilisateur');
+                closeUpdateUserModal();
+            });
+    }
+
+    function closeUpdateUserModal() {
+        document.getElementById('updateModalUser').style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    function deleteUser(userId) {
+        if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
+            window.location.href = `/admin/deleteUser/${userId}`;
+        }
+    }
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    }
+</script>

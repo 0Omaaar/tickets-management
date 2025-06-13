@@ -447,7 +447,7 @@
                     <div class="stat-content">
                         <div>
                             <div class="stat-number priority-low">{{ $lowPriorityTickets }}</div>
-                            <div class="stat-label">Priorité Basse</div>
+                            <div class="stat-label">Priorité Faible</div>
                         </div>
                         <i class="fas fa-arrow-down stat-icon"></i>
                     </div>
@@ -480,7 +480,7 @@
                     <div class="stat-content">
                         <div>
                             <div class="stat-number">{{ $supportTickets }}</div>
-                            <div class="stat-label">Support</div>
+                            <div class="stat-label">amélioration</div>
                         </div>
                         <i class="fas fa-headset stat-icon"></i>
                     </div>

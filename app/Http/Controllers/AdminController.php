@@ -331,31 +331,26 @@ class AdminController extends Controller
         $adminUsers = User::where('type', 'admin')->count();
         $regularUsers = $totalUsers - $adminUsers;
         
-        // Check if Module model exists and is working
-        try {
-            $totalModules = \App\Models\Module::count();
-        } catch (\Exception $e) {
-            $totalModules = 0; // Default if Module model doesn't exist
-        }
+        // Module counts
+        $totalModules = Module::count();
+        $projectsWithModules = Project::has('modules')->count(); // This is the key fix
+        $modulesWithTickets = Module::has('tickets')->count();
         
-        // Simple recent counts (last 30 days)
+        // Recent counts
         $recentUsers = User::where('created_at', '>=', now()->subDays(30))->count();
         $recentProjects = Project::where('created_at', '>=', now()->subDays(30))->count();
         $recentTickets = Ticket::where('created_at', '>=', now()->subDays(7))->count();
+        $recentModules = Module::where('created_at', '>=', now()->subDays(30))->count();
         
-        // Set default values for optional stats
-        $projectsWithModules = 0;
+        // Project relationships
         $projectsWithTickets = Project::has('tickets')->count();
-        $modulesWithTickets = 0;
-        $recentModules = 0;
-        
         $highPriorityTickets = Ticket::where('priority', 'haute')->count();
         $mediumPriorityTickets = Ticket::where('priority', 'moyenne')->count(); 
-        $lowPriorityTickets = Ticket::where('priority', 'basse')->count();
+        $lowPriorityTickets = Ticket::where('priority', 'Faible')->count();
         
         $bugTickets = Ticket::where('type', 'bug')->count();
-        $featureTickets = Ticket::where('type', 'feature')->count();
-        $supportTickets = Ticket::where('type', 'support')->count();
+        $featureTickets = Ticket::where('type', 'fonctionnalité')->count();
+        $supportTickets = Ticket::where('type', 'amélioration')->count();
         
         $recentlyClosedTickets = Ticket::where('status', 'fermé')
             ->where('updated_at', '>=', now()->subDays(7))->count();

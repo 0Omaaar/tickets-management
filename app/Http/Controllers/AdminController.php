@@ -70,10 +70,18 @@ class AdminController extends Controller
                 $projects = Project::where('name', 'like', '%' . $request->project_search . '%')
                 ->orWhere('description', 'like', '%' . $request->project_search . '%')
                 ->orderBy('created_at', 'desc')
-                ->paginate(5)
-                ->appends(['project_search' => $request->project_search]);
+                ->paginate(5, ['*'], 'projects_page')
+                ->appends([
+                    'project_search' => $request->project_search,
+                    'modules_page' => $request->modules_page,
+                    'users_page' => $request->users_page
+                ]);
             }else{
-                $projects = Project::paginate(5);
+                $projects = Project::paginate(5, ['*'], 'projects_page')
+                    ->appends([
+                        'modules_page' => $request->modules_page,
+                        'users_page' => $request->users_page
+                    ]);
             }
 
             if($request->has('module_search')){
@@ -83,10 +91,18 @@ class AdminController extends Controller
                     $query->where('name', 'like', '%' . $request->module_search . '%');
                 })
                 ->orderBy('created_at', 'desc')
-                ->paginate(5)
-                ->appends(['module_search' => $request->module_search]);
+                ->paginate(5, ['*'], 'modules_page')
+                ->appends([
+                    'module_search' => $request->module_search,
+                    'projects_page' => $request->projects_page,
+                    'users_page' => $request->users_page
+                ]);
             }else{
-                $modules = Module::paginate(5);
+                $modules = Module::paginate(5, ['*'], 'modules_page')
+                    ->appends([
+                        'projects_page' => $request->projects_page,
+                        'users_page' => $request->users_page
+                    ]);
             }
 
             if($request->has('user_search')){
@@ -94,10 +110,18 @@ class AdminController extends Controller
                 ->orWhere('email', 'like', '%' . $request->user_search . '%')
                 ->orWhere('type', 'like', '%' . $request->user_search . '%')
                 ->orderBy('created_at', 'desc')
-                ->paginate(5)
-                ->appends(['user_search' => $request->user_search]);
+                ->paginate(5, ['*'], 'users_page')
+                ->appends([
+                    'user_search' => $request->user_search,
+                    'projects_page' => $request->projects_page,
+                    'modules_page' => $request->modules_page
+                ]);
             }else{
-                $users = User::paginate(5);
+                $users = User::paginate(5, ['*'], 'users_page')
+                    ->appends([
+                        'projects_page' => $request->projects_page,
+                        'modules_page' => $request->modules_page
+                    ]);
             }
         }catch(\Exception $e){
             flash()->error('Erreur lors de la récupération des données');
@@ -318,43 +342,43 @@ class AdminController extends Controller
     try {
         // Basic counts that should work with your existing setup
         $totalUsers = User::count();
-        $totalProjects = Project::count(); 
+        $totalProjects = Project::count();
         $totalTickets = Ticket::count();
-        
+
         // Ticket status counts - adjust these status values to match your database
         $ticketsEnCours = Ticket::where('status', 'en_cours')->count();
-        $ticketsOuverts = Ticket::where('status', 'ouvert')->count(); 
+        $ticketsOuverts = Ticket::where('status', 'ouvert')->count();
         $ticketsFermes = Ticket::where('status', 'fermé')->count();
         $ticketsAnnules = Ticket::where('status', 'annulé')->count();
-        
+
         // Try to get admin count - but make it safe
         $adminUsers = User::where('type', 'admin')->count();
         $regularUsers = $totalUsers - $adminUsers;
-        
+
         // Module counts
         $totalModules = Module::count();
         $projectsWithModules = Project::has('modules')->count(); // This is the key fix
         $modulesWithTickets = Module::has('tickets')->count();
-        
+
         // Recent counts
         $recentUsers = User::where('created_at', '>=', now()->subDays(30))->count();
         $recentProjects = Project::where('created_at', '>=', now()->subDays(30))->count();
         $recentTickets = Ticket::where('created_at', '>=', now()->subDays(7))->count();
         $recentModules = Module::where('created_at', '>=', now()->subDays(30))->count();
-        
+
         // Project relationships
         $projectsWithTickets = Project::has('tickets')->count();
         $highPriorityTickets = Ticket::where('priority', 'haute')->count();
-        $mediumPriorityTickets = Ticket::where('priority', 'moyenne')->count(); 
+        $mediumPriorityTickets = Ticket::where('priority', 'moyenne')->count();
         $lowPriorityTickets = Ticket::where('priority', 'Faible')->count();
-        
+
         $bugTickets = Ticket::where('type', 'bug')->count();
         $featureTickets = Ticket::where('type', 'fonctionnalité')->count();
         $supportTickets = Ticket::where('type', 'amélioration')->count();
-        
+
         $recentlyClosedTickets = Ticket::where('status', 'fermé')
             ->where('updated_at', '>=', now()->subDays(7))->count();
-        
+
         // Simple monthly data
         $monthlyTickets = [];
         for ($i = 5; $i >= 0; $i--) {
@@ -366,14 +390,14 @@ class AdminController extends Controller
                     ->count()
             ];
         }
-        
+
         // Top projects - simplified
         $topProjects = Project::withCount('tickets')
             ->orderBy('tickets_count', 'desc')
             ->take(5)
             ->get();
-            
-        // Top users - simplified  
+
+        // Top users - simplified
         $topUsers = User::withCount('tickets')
             ->orderBy('tickets_count', 'desc')
             ->take(5)
@@ -391,8 +415,8 @@ class AdminController extends Controller
         ));
 
     } catch (\Exception $e) {
-       
-        
+
+
         flash()->error('Erreur lors de la récupération des statistiques: ' . $e->getMessage());
         return redirect()->back();
     }
